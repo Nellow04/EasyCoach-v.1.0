@@ -12,6 +12,8 @@ public class SessioneDAO {
     private static final String INSERT_SESSIONE =
             "INSERT INTO Sessione (idUtente, titolo, descrizione, prezzo, immagine, statusSessione) "
                     + "VALUES (?,?,?,?,?,?)";
+    private static final String SELECT_THREE_RANDOM_SESSIONE =
+            "SELECT * FROM Sessione WHERE statusSessione != 'ARCHIVIATA' ORDER BY RAND() LIMIT 3";
 
     private static final String SELECT_SESSIONE_BY_ID =
             "SELECT * FROM Sessione WHERE idSessione = ?";
@@ -20,8 +22,6 @@ public class SessioneDAO {
             "UPDATE Sessione SET idUtente=?, titolo=?, descrizione=?, prezzo=?, immagine=?, statusSessione=? "
                     + "WHERE idSessione=?";
 
-    private static final String DELETE_SESSIONE =
-            "DELETE FROM Sessione WHERE idSessione=?";
 
     private static final String SELECT_ALL_SESSIONI =
             "SELECT s.* FROM Sessione s " +
@@ -58,10 +58,9 @@ public class SessioneDAO {
 
     public List<Sessione> getTreSessioniCasuali() {
         List<Sessione> sessioni = new ArrayList<>();
-        String query = "SELECT * FROM Sessione WHERE statusSessione != 'ARCHIVIATA' ORDER BY RAND() LIMIT 3";
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(query);
+             PreparedStatement ps = con.prepareStatement(SELECT_THREE_RANDOM_SESSIONE);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -122,15 +121,7 @@ public class SessioneDAO {
         }
     }
 
-    // Elimina una sessione per ID
-    public void doDelete(int idSessione) throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(DELETE_SESSIONE)) {
 
-            ps.setInt(1, idSessione);
-            ps.executeUpdate();
-        }
-    }
 
     // Trova tutte le sessioni
     public List<Sessione> doFindAll() throws SQLException {
@@ -178,22 +169,7 @@ public class SessioneDAO {
         return sessioni;
     }
 
-    // Recupera le sessioni correlate
-    public List<Sessione> doFindRelated(int idSessione, int limit) throws SQLException {
-        try (Connection con = DBConnection.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(
-                    "SELECT * FROM sessione WHERE idSessione != ? AND statusSessione = 'ATTIVA' ORDER BY RAND() LIMIT ?");
-            ps.setInt(1, idSessione);
-            ps.setInt(2, limit);
-            ResultSet rs = ps.executeQuery();
-            List<Sessione> sessioni = new ArrayList<>();
-            while (rs.next()) {
-                Sessione s = extract(rs);
-                sessioni.add(s);
-            }
-            return sessioni;
-        }
-    }
+
 
     public List<Sessione> findByTitleLike(String titlePart) throws SQLException {
         List<Sessione> results = new ArrayList<>();

@@ -25,18 +25,10 @@ public class PrenotazioneDAO {
             "UPDATE Prenotazione SET idUtente=?, idTimeslot=?, idSessione=?, dataPrenotazione=?, statusPrenotazione=?, linkVideoconferenza=? "
                     + "WHERE idPrenotazione=?";
 
-    private static final String DELETE_PRENOTAZIONE =
-            "DELETE FROM Prenotazione WHERE idPrenotazione=?";
-
-    private static final String SELECT_ALL_PRENOTAZIONI =
-            "SELECT * FROM Prenotazione";
 
     private static final String CHECK_DISPONIBILITA =
             "SELECT COUNT(*) FROM Prenotazione WHERE idTimeslot = ? AND dataPrenotazione = ? AND statusPrenotazione != 'ANNULLATA'";
 
-    private static final String CHECK_TIMESLOT_STATUS =
-            "SELECT statusPrenotazione FROM Prenotazione " +
-            "WHERE idTimeslot = ? AND dataPrenotazione = ?";
 
     private static final String UPDATE_EXPIRED_BOOKINGS = 
             "UPDATE Prenotazione SET statusPrenotazione = 'ANNULLATA' " +
@@ -51,18 +43,6 @@ public class PrenotazioneDAO {
             "WHERE p.statusPrenotazione = 'ATTIVA' " +
             "AND (p.dataPrenotazione < ? " +
             "     OR (p.dataPrenotazione = ? AND (t.orario + 1) <= ?))";
-
-    private static final String SELECT_ACTIVE_PRENOTAZIONI_BY_MENTEE =
-            "SELECT p.* " +
-            "FROM Prenotazione p " +
-            "WHERE p.idUtente = ? AND p.statusPrenotazione = 'ATTIVA' " +
-            "ORDER BY p.dataPrenotazione ASC";
-
-    private static final String SELECT_COMPLETED_PRENOTAZIONI_BY_MENTEE =
-            "SELECT p.* " +
-            "FROM Prenotazione p " +
-            "WHERE p.idUtente = ? AND p.statusPrenotazione = 'CONCLUSA' " +
-            "ORDER BY p.dataPrenotazione DESC";
 
     private static final String SELECT_ACTIVE_PRENOTAZIONI_DETAILS_BY_MENTEE =
             "SELECT p.*, s.titolo, u.nome, u.cognome, t.orario " +
@@ -182,75 +162,6 @@ public class PrenotazioneDAO {
             ps.setString(6, prenotazione.getLinkVideoconferenza());
             ps.setInt(7, prenotazione.getIdPrenotazione());
 
-            if (ps.executeUpdate() != 1) {
-                throw new RuntimeException("UPDATE error.");
-            }
-        }
-    }
-
-    // Elimina una prenotazione per ID
-    public void doDelete(int idPrenotazione) throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(DELETE_PRENOTAZIONE)) {
-
-            ps.setInt(1, idPrenotazione);
-            if (ps.executeUpdate() != 1) {
-                throw new RuntimeException("DELETE error.");
-            }
-        }
-    }
-
-    // Trova tutte le prenotazioni
-    public List<Prenotazione> doFindAll() throws SQLException {
-        List<Prenotazione> prenotazioni = new ArrayList<>();
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SELECT_ALL_PRENOTAZIONI);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Prenotazione p = new Prenotazione();
-                p.setIdPrenotazione(rs.getInt("idPrenotazione"));
-                p.setIdUtente(rs.getInt("idUtente"));
-                p.setIdTimeslot(rs.getInt("idTimeslot"));
-                p.setIdSessione(rs.getInt("idSessione"));
-                p.setDataPrenotazione(rs.getTimestamp("dataPrenotazione").toLocalDateTime());
-                p.setStatusPrenotazione(rs.getString("statusPrenotazione"));
-                prenotazioni.add(p);
-            }
-        }
-        return prenotazioni;
-    }
-
-    public List<Prenotazione> doRetrieveByUtente(int idUtente) throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "SELECT id_prenotazione, id_utente, id_timeslot, id_sessione, data_prenotazione, status_prenotazione FROM Prenotazione WHERE id_utente=?")) {
-
-            ps.setInt(1, idUtente);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<Prenotazione> prenotazioni = new ArrayList<>();
-                while (rs.next()) {
-                    Prenotazione p = new Prenotazione();
-                    p.setIdPrenotazione(rs.getInt(1));
-                    p.setIdUtente(rs.getInt(2));
-                    p.setIdTimeslot(rs.getInt(3));
-                    p.setIdSessione(rs.getInt(4));
-                    p.setDataPrenotazione(rs.getTimestamp(5).toLocalDateTime());
-                    p.setStatusPrenotazione(rs.getString(6));
-                    prenotazioni.add(p);
-                }
-                return prenotazioni;
-            }
-        }
-    }
-
-    public void updateStatus(int idPrenotazione, String newStatus) throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE Prenotazione SET status_prenotazione=? WHERE id_prenotazione=?")) {
-
-            ps.setString(1, newStatus);
-            ps.setInt(2, idPrenotazione);
             if (ps.executeUpdate() != 1) {
                 throw new RuntimeException("UPDATE error.");
             }
