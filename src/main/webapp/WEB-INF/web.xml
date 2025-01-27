@@ -5,7 +5,7 @@
          version="6.0">
 
     <listener>
-        <listener-class>model.utils.ConnectionPoolContextListener</listener-class>
+        <listener-class>model.connection.ConnectionPoolContextListener</listener-class>
     </listener>
 
 
