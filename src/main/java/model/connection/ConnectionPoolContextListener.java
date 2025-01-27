@@ -1,4 +1,4 @@
-package model.utils;
+package model.connection;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
