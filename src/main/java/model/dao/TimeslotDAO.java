@@ -1,7 +1,7 @@
 package model.dao;
 
 import model.beans.Timeslot;
-import model.utils.DBConnection;
+import model.connection.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

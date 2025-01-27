@@ -1,7 +1,7 @@
 package model.dao;
 
 import model.beans.Sessione;
-import model.utils.DBConnection;
+import model.connection.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
