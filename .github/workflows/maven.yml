@@ -3,7 +3,7 @@ name: Java CI with Maven
 on:
   pull_request:
     branches:
-      - "master"  # Attiva il workflow solo per pull request verso master
+      - "master"
     types: [opened, synchronize, reopened]
 
 jobs:
