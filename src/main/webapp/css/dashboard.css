@@ -1,0 +1,364 @@
+.timeslot-wrapper {
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.timeslot-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.timeslot-cell {
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease-in-out;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeslot-cell:hover {
+    transform: scale(1.05);
+}
+
+.timeslot-occupied {
+    background-color: #dc3545;
+    color: white;
+}
+
+.timeslot-available {
+    background-color: #198754;
+    color: white;
+}
+
+/* Layout principale */
+body {
+    padding-top: 56px; /* Altezza dell'header */
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    position: relative;
+}
+
+main {
+    padding-top: 2rem;
+    background-color: #fff;
+    min-height: calc(100vh - 56px);
+    padding-bottom: 4rem; /* Spazio per il footer */
+}
+
+/* Header */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #fff !important;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 80px;
+    bottom: 300px; /* Altezza del footer */
+    left: 0;
+    z-index: 100;
+    padding: 20px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
+    border-top: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    width: 16.666667%;
+}
+
+/* Contenuto principale */
+.col-md-10 {
+    margin-left: 16.666667%;
+    padding: 0;
+    min-height: calc(100vh - 80px);
+    background-color: #fff;
+}
+
+.col-md-10 > * {
+    padding: 2rem;
+}
+
+.sticky-top {
+    top: 0;
+    z-index: 1000;
+    position: sticky;
+}
+
+.nav-link {
+    color: #495057;
+    transition: all 0.3s ease;
+    padding: .5rem 1rem;
+    border-radius: .25rem;
+    margin: .25rem 0;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.nav-link i {
+    margin-right: .5rem;
+}
+
+/* Stili per le sezioni */
+#profileSection, #searchSection, #sessionsSection, #bookingsSection {
+    padding: 20px;
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+#activeBookingsContainer,
+#completedBookingsContainer {
+    margin-top: 3rem;
+}
+
+/* Stili per le card */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.card.border-primary {
+    border-width: 2px;
+}
+
+.card.border-secondary {
+    border-width: 2px;
+    opacity: 0.8;
+}
+
+.card-header {
+    background-color: rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #6c757d;
+}
+
+.card-text i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Stili per i form */
+.form-label {
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.form-label:hover {
+    color: #0d6efd;
+}
+
+.form-control {
+    transition: all 0.2s ease-in-out;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.form-control:hover {
+    background-color: #e9ecef !important;
+}
+
+.form-control:focus {
+    background-color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #1a3b5d;
+}
+
+.form-control.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.form-label {
+    color: #495057;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-label i {
+    color: #1a3b5d;
+}
+
+/* Error messages */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Submit button */
+.btn-primary {
+    background-color: #1a3b5d;
+    border-color: #1a3b5d;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #152f4a;
+    border-color: #152f4a;
+    transform: translateY(-2px);
+}
+
+/* Animazioni */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form container */
+.profile-form-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-top: 3rem;
+}
+
+.profile-form-container h5 {
+    color: #1a3b5d;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+/* Stili per i bottoni nella toolbar */
+.btn-toolbar {
+    gap: 10px;
+}
+
+/* Stili per le immagini preview */
+.img-preview {
+    max-width: 200px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Stili per la tabella delle prenotazioni */
+.table tbody tr {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+/* Stile dei filtri */
+.btn-group {
+    margin-bottom: 2rem;
+}
+
+.btn-outline-primary {
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-outline-primary.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,123,255,0.3);
+}
+
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background-color: #fff;
+    border-top: 1px solid #dee2e6;
+    z-index: 200; /* Maggiore della sidebar per sovrastarla */
+    padding: 1.5rem;
+}
+
+/* Form di ricerca */
+.search-form {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.search-button {
+    background-color: #1a3b5d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #152f4a;
+    transform: translateY(-2px);
+}
+
+.search-button i {
+    margin-right: 8px;
+}
+
+/* Risultati della ricerca */
+.search-results {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.session-card {
+    animation: fadeIn 0.5s ease forwards;
+    margin-bottom: 1rem;
+}
+
+/* Bottoni toolbar */
+.toolbar-button {
+    background-color: #1a3b5d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.toolbar-button:hover {
+    background-color: #152f4a;
+    transform: translateY(-2px);
+}
+
+.toolbar-button i {
+    margin-right: 6px;
+}
