@@ -31,7 +31,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.1: validateImage con immagine valida")
+    @DisplayName("TC_5.1: validateImage con immagine valida")
     void testValidateImage_ValidImage() {
         when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // 5 MB
         when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\"; filename=\"image.jpg\"");
@@ -42,7 +42,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.2: validateImage con filePart nullo")
+    @DisplayName("TC_5.2: validateImage con filePart nullo")
     void testValidateImage_NullPart() {
         boolean isValid = imageService.validateImage(null);
 
@@ -50,7 +50,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.3: validateImage con dimensione file troppo grande")
+    @DisplayName("TC_5.3: validateImage con dimensione file troppo grande")
     void testValidateImage_FileTooLarge() {
         when(mockPart.getSize()).thenReturn(15 * 1024 * 1024L); // 15 MB
 
@@ -60,7 +60,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.4: validateImage con estensione non valida")
+    @DisplayName("TC_5e.4: validateImage con estensione non valida")
     void testValidateImage_InvalidExtension() {
         when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // 5 MB
         when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\"; filename=\"image.exe\"");

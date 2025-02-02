@@ -29,16 +29,10 @@ class AutenticazioneServiceTest {
         autenticazioneService = new AutenticazioneService(utenteDAO); // Iniezione del mock
     }
 
-    @Test
-    @DisplayName("TC_1.1: Validazione - Tutti i campi validi")
-    void testValidaInputRegistrazione_TuttiCampiValidi() {
-        boolean result = autenticazioneService.validaInputRegistrazione(
-                "test@email.com", "Mario", "Rossi", "hashedPassword123", "MENTOR");
-        assertTrue(result);
-    }
+
 
     @Test
-    @DisplayName("TC_1.2: Validazione - Email non valida")
+    @DisplayName("TC_1.1: Validazione - Email non valida")
     void testValidaInputRegistrazione_EmailNonValida() {
         boolean result = autenticazioneService.validaInputRegistrazione(
                 "invalid_email", "Mario", "Rossi", "hashedPassword123", "MENTOR");
@@ -46,10 +40,18 @@ class AutenticazioneServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.3: Validazione - Nome troppo corto")
+    @DisplayName("TC_1.2: Validazione - Nome troppo corto")
     void testValidaInputRegistrazione_NomeTroppoCorto() {
         boolean result = autenticazioneService.validaInputRegistrazione(
-                "test@email.com", "A", "Rossi", "hashedPassword123", "MENTOR");
+                "test@email.com", "M", "Rossi", "hashedPassword123", "MENTOR");
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("TC_1.3: Validazione - Cognome troppo corto")
+    void testValidaInputRegistrazione_CognomeTroppoCorto() {
+        boolean result = autenticazioneService.validaInputRegistrazione(
+                "test@email.com", "Mario", "R", "hashedPassword123", "MENTOR");
         assertFalse(result);
     }
 
@@ -86,6 +88,14 @@ class AutenticazioneServiceTest {
 
         result = autenticazioneService.validaInputRegistrazione(
                 "valid.email@domain.com", "Mario", "Rossi", "hashedPassword123", "MENTOR");
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("TC_1.7: Validazione - Tutti i campi validi")
+    void testValidaInputRegistrazione_TuttiCampiValidi() {
+        boolean result = autenticazioneService.validaInputRegistrazione(
+                "test@email.com", "Mario", "Rossi", "hashedPassword123", "MENTOR");
         assertTrue(result);
     }
 
@@ -135,7 +145,7 @@ class AutenticazioneServiceTest {
     }
 
     @Test
-    @DisplayName("TC_4.1: Effettua Login - Credenziali valide")
+    @DisplayName("TC_4.3: Effettua Login - Credenziali valide")
     void testEffettuaLogin_CredenzialiValide() throws Exception {
         Utente utente = new Utente();
         utente.setPassword(autenticazioneService.hashPassword("mypassword123"));
@@ -155,7 +165,7 @@ class AutenticazioneServiceTest {
     }
 
     @Test
-    @DisplayName("TC_4.3: Effettua Login - Password errata")
+    @DisplayName("TC_4.1: Effettua Login - Password errata")
     void testEffettuaLogin_PasswordErrata() throws Exception {
         Utente utente = new Utente();
         utente.setPassword(autenticazioneService.hashPassword("correctpassword"));
