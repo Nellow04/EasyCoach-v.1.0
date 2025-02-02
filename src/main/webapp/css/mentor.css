@@ -1,0 +1,175 @@
+/* Stili per il mentor */
+
+/* Layout principale */
+.container-fluid {
+    padding-top: 20px;
+}
+
+/* Stili per la sidebar */
+.sidebar {
+    min-height: calc(100vh - 56px);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    padding-top: 20px;
+}
+
+.nav-link {
+    color: #333;
+    padding: .5rem 1rem;
+    border-radius: .25rem;
+    margin: .25rem 0;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+}
+
+.nav-link i {
+    margin-right: .5rem;
+}
+
+/* Stili per le sezioni */
+#profileSection, #sessionsSection, #bookingsSection {
+    padding: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stili per le card delle sessioni */
+.card {
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Stili per i form */
+.form-control {
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: none;
+}
+
+/* Stili per i timeslot */
+.timeslot-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+
+.timeslot-cell {
+    padding: 2px 4px;
+    border-radius: 3px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.timeslot-occupied {
+    background-color: #dc3545;
+    color: white;
+}
+
+.timeslot-available {
+    background-color: #198754;
+    color: white;
+}
+
+/* Stili per le immagini preview */
+#editImagePreview img {
+    max-width: 200px;
+}
+
+/* Stili per i bottoni */
+.btn-toolbar {
+    gap: 10px;
+}
+
+/* Stili per i bottoni */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Stili per i modal */
+.modal-header {
+    background-color: #1a3b5d;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Animazioni per il caricamento dei risultati */
+#searchResults .list-group-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+    animation-delay: calc(var(--item-index) * 0.1s);
+}
+
+/* Stili per i badge e le icone */
+.badge {
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+}
+
+.bi {
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover .bi {
+    transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        height: auto;
+        padding-top: 0;
+    }
+
+    .card-img-top {
+        height: 150px;
+    }
+}
