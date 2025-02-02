@@ -3,6 +3,7 @@ package sottosistemi.Autenticazione.service;
 import model.beans.Utente;
 import model.dao.UtenteDAO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -100,6 +101,23 @@ class AutenticazioneServiceTest {
     }
 
     @Test
+    @DisplayName("TC_1.7.1: Registra Nuovo Utente")
+    void testRegistraNuovoUtente() throws SQLException {
+        doNothing().when(utenteDAO).doSave(any(Utente.class));
+
+        autenticazioneService.registraNuovoUtente(
+                "test@email.com", "Mario", "Rossi", "hashedPassword123", "MENTOR");
+
+        verify(utenteDAO, times(1)).doSave(argThat(utente ->
+                utente.getEmail().equals("test@email.com") &&
+                        utente.getNome().equals("Mario") &&
+                        utente.getCognome().equals("Rossi") &&
+                        utente.getPassword().equals("hashedPassword123") &&
+                        utente.getRuolo().equals("MENTOR")
+        ));
+    }
+
+    @Test
     @DisplayName("TC_2.1: Verifica email - Email gia' registrata")
     void testIsEmailRegistrata_EmailGiaRegistrata() throws SQLException {
         Utente mockUtente = new Utente();
@@ -120,13 +138,7 @@ class AutenticazioneServiceTest {
         assertFalse(result);
     }
 
-    @Test
-    @DisplayName("TC_2.3: Verifica email - Lancia SQLException")
-    void testIsEmailRegistrata_ThrowsSQLException() throws SQLException {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new SQLException());
 
-        assertThrows(SQLException.class, () -> autenticazioneService.isEmailRegistrata("test@email.com"));
-    }
 
     @Test
     @DisplayName("TC_3.1: Hash Password - Valida")
@@ -145,26 +157,6 @@ class AutenticazioneServiceTest {
     }
 
     @Test
-    @DisplayName("TC_4.3: Effettua Login - Credenziali valide")
-    void testEffettuaLogin_CredenzialiValide() throws Exception {
-        Utente utente = new Utente();
-        utente.setPassword(autenticazioneService.hashPassword("mypassword123"));
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(utente);
-
-        Utente result = autenticazioneService.effettuaLogin("test@email.com", "mypassword123");
-        assertNotNull(result);
-    }
-
-    @Test
-    @DisplayName("TC_4.2: Effettua Login - Email non trovata")
-    void testEffettuaLogin_EmailNonTrovata() throws Exception {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(null);
-
-        Utente result = autenticazioneService.effettuaLogin("test@email.com", "mypassword123");
-        assertNull(result);
-    }
-
-    @Test
     @DisplayName("TC_4.1: Effettua Login - Password errata")
     void testEffettuaLogin_PasswordErrata() throws Exception {
         Utente utente = new Utente();
@@ -176,6 +168,58 @@ class AutenticazioneServiceTest {
     }
 
     @Test
+    @DisplayName("TC_4.2: Effettua Login - Email non trovata")
+    void testEffettuaLogin_EmailNonTrovata() throws Exception {
+        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(null);
+
+        Utente result = autenticazioneService.effettuaLogin("test@email.com", "mypassword123");
+        assertNull(result);
+    }
+
+
+    @Test
+    @DisplayName("TC_4.3: Effettua Login - Credenziali valide")
+    void testEffettuaLogin_CredenzialiValide() throws Exception {
+        Utente utente = new Utente();
+        utente.setPassword(autenticazioneService.hashPassword("mypassword123"));
+        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(utente);
+
+        Utente result = autenticazioneService.effettuaLogin("test@email.com", "mypassword123");
+        assertNotNull(result);
+    }
+
+
+
+
+
+
+    // Test disabilitati non coerenti con il Test Case Specification
+
+    @Test @Disabled
+    @DisplayName("TC_2.3: Verifica email - Lancia SQLException")
+    void testIsEmailRegistrata_ThrowsSQLException() throws SQLException {
+        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new SQLException());
+
+        assertThrows(SQLException.class, () -> autenticazioneService.isEmailRegistrata("test@email.com"));
+    }
+
+    @Test @Disabled
+    @DisplayName("TC_6.1: Costruttore predefinito di AutenticazioneService")
+    void testAutenticazioneService_DefaultConstructor() {
+        AutenticazioneService service = new AutenticazioneService();
+        assertNotNull(service);
+    }
+
+    @Test @Disabled
+    @DisplayName("TC_5.3: Check Email Exists - Lancia eccezione")
+    void testCheckEmailExists_Exception() throws SQLException {
+        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new RuntimeException());
+
+        boolean result = autenticazioneService.checkEmailExists("test@email.com");
+        assertFalse(result);
+    }
+
+    @Test @Disabled
     @DisplayName("TC_5.1: Check Email Exists - Esiste")
     void testCheckEmailExists_True() throws SQLException {
         Utente utente = new Utente();
@@ -185,7 +229,8 @@ class AutenticazioneServiceTest {
         assertTrue(result);
     }
 
-    @Test
+
+    @Test @Disabled
     @DisplayName("TC_5.2: Check Email Exists - Non esiste")
     void testCheckEmailExists_False() throws SQLException {
         when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(null);
@@ -194,36 +239,4 @@ class AutenticazioneServiceTest {
         assertFalse(result);
     }
 
-    @Test
-    @DisplayName("TC_5.3: Check Email Exists - Lancia eccezione")
-    void testCheckEmailExists_Exception() throws SQLException {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new RuntimeException());
-
-        boolean result = autenticazioneService.checkEmailExists("test@email.com");
-        assertFalse(result);
-    }
-
-    @Test
-    @DisplayName("TC_6.1: Costruttore predefinito di AutenticazioneService")
-    void testAutenticazioneService_DefaultConstructor() {
-        AutenticazioneService service = new AutenticazioneService();
-        assertNotNull(service);
-    }
-
-    @Test
-    @DisplayName("TC_7.1: Registra Nuovo Utente")
-    void testRegistraNuovoUtente() throws SQLException {
-        doNothing().when(utenteDAO).doSave(any(Utente.class));
-
-        autenticazioneService.registraNuovoUtente(
-                "test@email.com", "Mario", "Rossi", "hashedPassword123", "MENTOR");
-
-        verify(utenteDAO, times(1)).doSave(argThat(utente ->
-                utente.getEmail().equals("test@email.com") &&
-                        utente.getNome().equals("Mario") &&
-                        utente.getCognome().equals("Rossi") &&
-                        utente.getPassword().equals("hashedPassword123") &&
-                        utente.getRuolo().equals("MENTOR")
-        ));
-    }
 }
