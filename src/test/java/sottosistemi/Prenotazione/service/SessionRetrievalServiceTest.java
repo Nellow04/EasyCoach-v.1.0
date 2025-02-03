@@ -37,6 +37,109 @@ class SessionRetrievalServiceTest {
     }
 
     @Test
+    @DisplayName("TC_1.1: Sessioni trovate con query valida")
+    void testFindSessionsByTitleLike_Trovate() throws SQLException {
+        String query = "test";
+        List<Sessione> sessioniMock = List.of(new Sessione(), new Sessione());
+
+        when(sessioneDAO.findByTitleLike(query)).thenReturn(sessioniMock);
+
+        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    @DisplayName("TC_1.2: Nessuna sessione trovata con query valida")
+    void testFindSessionsByTitleLike_Nessuna() throws SQLException {
+        String query = "test";
+
+        when(sessioneDAO.findByTitleLike(query)).thenReturn(Collections.emptyList());
+
+        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("TC_1.3: Query nulla o vuota")
+    void testFindSessionsByTitleLike_QueryNulla() throws SQLException {
+        String query = null;
+
+        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("TC_1.4: Eccezione SQL in findSessionsByTitleLike")
+    void testFindSessionsByTitleLike_SQLException() throws SQLException {
+        String query = "test";
+
+        when(sessioneDAO.findByTitleLike(query)).thenThrow(new SQLException());
+
+        assertThrows(SQLException.class, () -> sessionRetrievalService.findSessionsByTitleLike(query));
+    }
+
+    @Test
+    @DisplayName("TC_2.1: Sessioni correlate trovate")
+    void testFindCorrelatedSessions_Trovate() throws SQLException {
+        int currentSessionId = 1;
+        List<Sessione> allSessions = new ArrayList<>();
+        for (int i = 1; i <= 6; i++) {
+            Sessione sessione = new Sessione();
+            sessione.setIdSessione(i);
+            sessione.setStatusSessione(i % 2 == 0 ? "ATTIVA" : "INATTIVA");
+            allSessions.add(sessione);
+        }
+
+        when(sessioneDAO.doFindAll()).thenReturn(allSessions);
+
+        List<Sessione> result = sessionRetrievalService.findCorrelatedSessions(currentSessionId);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertTrue(result.stream().allMatch(s -> s.getStatusSessione().equalsIgnoreCase("ATTIVA")));
+    }
+
+    @Test
+    @DisplayName("TC_2.2: Nessuna sessione correlata")
+    void testFindCorrelatedSessions_Nessuna() throws SQLException {
+        int currentSessionId = 1;
+        List<Sessione> allSessions = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            Sessione sessione = new Sessione();
+            sessione.setIdSessione(i);
+            sessione.setStatusSessione("INATTIVA");
+            allSessions.add(sessione);
+        }
+
+        when(sessioneDAO.doFindAll()).thenReturn(allSessions);
+
+        List<Sessione> result = sessionRetrievalService.findCorrelatedSessions(currentSessionId);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("TC_2.3: Eccezione SQL in findCorrelatedSessions")
+    void testFindCorrelatedSessions_SQLException() throws SQLException {
+        int currentSessionId = 1;
+
+        when(sessioneDAO.doFindAll()).thenThrow(new SQLException());
+
+        assertThrows(SQLException.class, () -> sessionRetrievalService.findCorrelatedSessions(currentSessionId));
+    }
+
+
+
+    // Test uguali ma per Service diverse
+
+    @Test
     @DisplayName("TC_1.1: Trova sessione per ID valido")
     void testFindSessionById_Valido() throws SQLException {
         int sessioneId = 1;
@@ -83,37 +186,7 @@ class SessionRetrievalServiceTest {
         assertThrows(SQLException.class, () -> sessionRetrievalService.findSessionById(sessioneId));
     }
 
-    @Test
-    @DisplayName("TC_2.1: Trova tutte le sessioni")
-    void testFindAllSessions_Presenti() throws SQLException {
-        List<Sessione> sessioniMock = List.of(new Sessione(), new Sessione());
 
-        when(sessioneDAO.doFindAll()).thenReturn(sessioniMock);
-
-        List<Sessione> result = sessionRetrievalService.findAllSessions();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-    }
-
-    @Test
-    @DisplayName("TC_2.2: Nessuna sessione trovata")
-    void testFindAllSessions_Nessuna() throws SQLException {
-        when(sessioneDAO.doFindAll()).thenReturn(Collections.emptyList());
-
-        List<Sessione> result = sessionRetrievalService.findAllSessions();
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("TC_2.3: Eccezione SQL in findAllSessions")
-    void testFindAllSessions_SQLException() throws SQLException {
-        when(sessioneDAO.doFindAll()).thenThrow(new SQLException());
-
-        assertThrows(SQLException.class, () -> sessionRetrievalService.findAllSessions());
-    }
 
     @Test
     @DisplayName("TC_3.1: Trova timeslot per sessione valida")
@@ -174,104 +247,5 @@ class SessionRetrievalServiceTest {
         when(timeslotDAO.findBySessionId(sessioneId)).thenThrow(new SQLException());
 
         assertThrows(SQLException.class, () -> sessionRetrievalService.findTimeslotsBySessionId(sessioneId));
-    }
-
-    @Test
-    @DisplayName("TC_4.1: Sessioni correlate trovate")
-    void testFindCorrelatedSessions_Trovate() throws SQLException {
-        int currentSessionId = 1;
-        List<Sessione> allSessions = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
-            Sessione sessione = new Sessione();
-            sessione.setIdSessione(i);
-            sessione.setStatusSessione(i % 2 == 0 ? "ATTIVA" : "INATTIVA");
-            allSessions.add(sessione);
-        }
-
-        when(sessioneDAO.doFindAll()).thenReturn(allSessions);
-
-        List<Sessione> result = sessionRetrievalService.findCorrelatedSessions(currentSessionId);
-
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        assertTrue(result.stream().allMatch(s -> s.getStatusSessione().equalsIgnoreCase("ATTIVA")));
-    }
-
-    @Test
-    @DisplayName("TC_4.2: Nessuna sessione correlata")
-    void testFindCorrelatedSessions_Nessuna() throws SQLException {
-        int currentSessionId = 1;
-        List<Sessione> allSessions = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            Sessione sessione = new Sessione();
-            sessione.setIdSessione(i);
-            sessione.setStatusSessione("INATTIVA");
-            allSessions.add(sessione);
-        }
-
-        when(sessioneDAO.doFindAll()).thenReturn(allSessions);
-
-        List<Sessione> result = sessionRetrievalService.findCorrelatedSessions(currentSessionId);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("TC_4.3: Eccezione SQL in findCorrelatedSessions")
-    void testFindCorrelatedSessions_SQLException() throws SQLException {
-        int currentSessionId = 1;
-
-        when(sessioneDAO.doFindAll()).thenThrow(new SQLException());
-
-        assertThrows(SQLException.class, () -> sessionRetrievalService.findCorrelatedSessions(currentSessionId));
-    }
-
-    @Test
-    @DisplayName("TC_5.1: Sessioni trovate con query valida")
-    void testFindSessionsByTitleLike_Trovate() throws SQLException {
-        String query = "test";
-        List<Sessione> sessioniMock = List.of(new Sessione(), new Sessione());
-
-        when(sessioneDAO.findByTitleLike(query)).thenReturn(sessioniMock);
-
-        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-    }
-
-    @Test
-    @DisplayName("TC_5.2: Nessuna sessione trovata con query valida")
-    void testFindSessionsByTitleLike_Nessuna() throws SQLException {
-        String query = "test";
-
-        when(sessioneDAO.findByTitleLike(query)).thenReturn(Collections.emptyList());
-
-        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("TC_5.3: Query nulla o vuota")
-    void testFindSessionsByTitleLike_QueryNulla() throws SQLException {
-        String query = null;
-
-        List<Sessione> result = sessionRetrievalService.findSessionsByTitleLike(query);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("TC_5.4: Eccezione SQL in findSessionsByTitleLike")
-    void testFindSessionsByTitleLike_SQLException() throws SQLException {
-        String query = "test";
-
-        when(sessioneDAO.findByTitleLike(query)).thenThrow(new SQLException());
-
-        assertThrows(SQLException.class, () -> sessionRetrievalService.findSessionsByTitleLike(query));
     }
 }
