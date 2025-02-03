@@ -30,8 +30,6 @@ class AutenticazioneServiceTest {
         autenticazioneService = new AutenticazioneService(utenteDAO); // Iniezione del mock
     }
 
-
-
     @Test
     @DisplayName("TC_1.1: Validazione - Email non valida")
     void testValidaInputRegistrazione_EmailNonValida() {
@@ -186,57 +184,6 @@ class AutenticazioneServiceTest {
 
         Utente result = autenticazioneService.effettuaLogin("test@email.com", "mypassword123");
         assertNotNull(result);
-    }
-
-
-
-
-
-
-    // Test disabilitati non coerenti con il Test Case Specification
-
-    @Test @Disabled
-    @DisplayName("TC_2.3: Verifica email - Lancia SQLException")
-    void testIsEmailRegistrata_ThrowsSQLException() throws SQLException {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new SQLException());
-
-        assertThrows(SQLException.class, () -> autenticazioneService.isEmailRegistrata("test@email.com"));
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_6.1: Costruttore predefinito di AutenticazioneService")
-    void testAutenticazioneService_DefaultConstructor() {
-        AutenticazioneService service = new AutenticazioneService();
-        assertNotNull(service);
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_5.3: Check Email Exists - Lancia eccezione")
-    void testCheckEmailExists_Exception() throws SQLException {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenThrow(new RuntimeException());
-
-        boolean result = autenticazioneService.checkEmailExists("test@email.com");
-        assertFalse(result);
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_5.1: Check Email Exists - Esiste")
-    void testCheckEmailExists_True() throws SQLException {
-        Utente utente = new Utente();
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(utente);
-
-        boolean result = autenticazioneService.checkEmailExists("test@email.com");
-        assertTrue(result);
-    }
-
-
-    @Test @Disabled
-    @DisplayName("TC_5.2: Check Email Exists - Non esiste")
-    void testCheckEmailExists_False() throws SQLException {
-        when(utenteDAO.doRetrieveByEmail("test@email.com")).thenReturn(null);
-
-        boolean result = autenticazioneService.checkEmailExists("test@email.com");
-        assertFalse(result);
     }
 
 }

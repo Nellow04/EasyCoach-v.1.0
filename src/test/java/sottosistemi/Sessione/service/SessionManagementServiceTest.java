@@ -115,10 +115,6 @@ class SessionManagementServiceTest {
         assertNull(result);
     }
 
-
-
-
-
     @Test
     @DisplayName("TC_10.1: Verifica prenotazioni attive (true)")
     void testHasActiveBookings_True() throws SQLException {
@@ -215,46 +211,6 @@ class SessionManagementServiceTest {
         verify(sessioneDAO).doUpdate(session);
         verify(timeslotDAO).doDeleteBySessione(1);
         verifyNoMoreInteractions(timeslotDAO);
-    }
-
-
-    // Testi non coerenti con il Test Case Specification
-
-
-    @Test @Disabled
-    @DisplayName("TC_2.4: Crea sessione con lunghezze diverse di days e hours")
-    void testCreateSession_DifferentLengthsDaysHours() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdUtente(1);
-        session.setTitolo("Sessione Test");
-        when(sessioneDAO.doSave(session)).thenReturn(1);
-
-        String[] days = {"1", "2"};
-        String[] hours = {"10"}; // Lunghezza diversa
-
-        int sessionId = service.createSession(session, days, hours);
-
-        assertEquals(1, sessionId);
-        verify(sessioneDAO).doSave(session);
-        verifyNoInteractions(timeslotDAO); // Nessuna interazione con timeslotDAO
-    }
-
-
-    @Test @Disabled
-    @DisplayName("TC_5.4: Aggiorna sessione con lunghezze diverse di days e hours")
-    void testUpdateSession_DifferentLengthsDaysHours() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdSessione(1);
-        session.setTitolo("Sessione Aggiornata");
-
-        String[] days = {"1", "2"};
-        String[] hours = {"10"}; // Lunghezza diversa
-
-        service.updateSession(session, days, hours);
-
-        verify(sessioneDAO).doUpdate(session);
-        verify(timeslotDAO).doDeleteBySessione(1); // I timeslot vengono eliminati
-        verifyNoMoreInteractions(timeslotDAO); // Nessun salvataggio di nuovi timeslot
     }
 
 }

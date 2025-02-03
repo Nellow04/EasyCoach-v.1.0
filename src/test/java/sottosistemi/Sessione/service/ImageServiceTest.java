@@ -73,7 +73,7 @@ class ImageServiceTest {
 
 
 
-    // Test per aumentare la branch coverage
+    // Test per ridondanti nel TCS ma utili per garantire la branch coverage
     @Test
     @DisplayName("TC_2.1: processImageUpload con immagine valida")
     void testProcessImageUpload_ValidImage() throws IOException {
@@ -195,16 +195,5 @@ class ImageServiceTest {
 
         assertNull(fileName);
     }
-    @Test @Disabled
-    @DisplayName("TC_1.3: validateImage con dimensione file 0")
-    void testValidateImage_FileSizeZero() {
-        when(mockPart.getSize()).thenReturn(0L); // File vuoto
-        boolean isValid = imageService.validateImage(mockPart);
-        assertFalse(isValid, "Un file con dimensione 0 non dovrebbe essere valido");
-    }
-
-
-
-
 
 }

@@ -40,11 +40,6 @@ class PaymentServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test @Disabled
-    @DisplayName("TC_1.1: Validazione numero carta valido")
-    void testValidateCardPayment_NumeroCartaValido() {
-        assertDoesNotThrow(() -> paymentService.validateCardPayment("1234567812345678", "01/12", "2030", "Mario Rossi", "123"));
-    }
 
     @Test
     @DisplayName("TC_5.1: Numero carta nullo")
@@ -131,7 +126,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    @DisplayName("TC_2.1: Metodo pagamento GOOGLEPAY")
+    @DisplayName("TC_5.10: Metodo pagamento GOOGLEPAY")
     void testProcessPayment_MetodoGooglePay() throws SQLException {
         int idPrenotazione = 1;
         String metodoPagamento = "GOOGLEPAY";
@@ -155,7 +150,7 @@ class PaymentServiceTest {
 
 
     @Test
-    @DisplayName("TC_3.1: Sessione nulla in sendNotifications")
+    @DisplayName("TC_7.1: Sessione nulla in sendNotifications")
     void testSendNotifications_SessioneNulla() throws SQLException {
         Prenotazione mockPrenotazione = new Prenotazione();
         mockPrenotazione.setIdPrenotazione(1);
@@ -171,7 +166,7 @@ class PaymentServiceTest {
 
 
     @Test
-    @DisplayName("TC_3.2: ID utente sessione nullo in sendNotifications")
+    @DisplayName("TC_7.2: ID utente sessione nullo in sendNotifications")
     void testSendNotifications_IdUtenteSessioneNullo() throws SQLException {
         Prenotazione prenotazione = new Prenotazione();
         prenotazione.setIdSessione(1);
@@ -186,52 +181,5 @@ class PaymentServiceTest {
 
         verify(sessioneDAO).doFindById(prenotazione.getIdSessione());
     }
-
-
-
-    @Test @Disabled
-    @DisplayName("TC_2.3: SQLException durante il salvataggio del pagamento")
-    void testProcessPayment_SQLException() throws SQLException {
-        int idPrenotazione = 1;
-        String metodoPagamento = "CARTA";
-        double totalePagato = 100.0;
-        String idUtenteSession = "10";
-
-        doThrow(new SQLException()).when(pagamentoDAO).doSave(any(Pagamento.class));
-
-        assertThrows(SQLException.class, () -> paymentService.processPayment(idPrenotazione, metodoPagamento, totalePagato, idUtenteSession));
-    }
-
-
-
-    @Test @Disabled
-    @DisplayName("TC_1.2: Data scadenza con formato errato")
-    void testValidateCardPayment_DataScadenzaFormatoErrato() {
-        ValidationException exception = assertThrows(ValidationException.class, () ->
-                paymentService.validateCardPayment("1234567812345678", "13/2022", "2030", "Mario Rossi", "123"));
-        assertEquals("Formato data scadenza non valido", exception.getMessage());
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_2.2: Prenotazione non trovata")
-    void testProcessPayment_PrenotazioneNonTrovata() throws SQLException {
-        int idPrenotazione = 1;
-        String metodoPagamento = "CARTA";
-        double totalePagato = 100.0;
-        String idUtenteSession = "10";
-
-        when(prenotazioneDAO.doFindById(idPrenotazione)).thenReturn(null);
-
-        Pagamento result = paymentService.processPayment(idPrenotazione, metodoPagamento, totalePagato, idUtenteSession);
-
-        assertNotNull(result);
-        assertEquals("COMPLETATO", result.getStatusPagamento());
-    }
-
-
-
-
-
-
 
 }

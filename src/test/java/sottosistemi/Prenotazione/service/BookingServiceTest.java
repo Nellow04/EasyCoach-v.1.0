@@ -48,7 +48,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("TC_3.2: Parametri non parsabili - checkAvailability")
+    @DisplayName("TC_3.2: Parametri con formato errato - checkAvailability")
     void testCheckAvailability_InvalidParameters() {
         Map<String, String> params = new HashMap<>();
         params.put("timeslotId", "notAnInteger");
@@ -99,7 +99,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("TC_4.2: Parametri non parsabili - createBooking")
+    @DisplayName("TC_4.2: Parametri con formato errato - createBooking")
     void testCreateBooking_InvalidParameters() {
         Map<String, String> params = new HashMap<>();
         params.put("timeslotId", "notAnInteger");
@@ -150,7 +150,7 @@ class BookingServiceTest {
     }
 
     @Test
-    @DisplayName("TC_6.2: ID prenotazione non parsabile - confirmBooking")
+    @DisplayName("TC_6.2: ID prenotazione con formato errato - confirmBooking")
     void testConfirmBooking_InvalidId() {
         Map<String, String> params = new HashMap<>();
         params.put("idPrenotazione", "notAnInteger");
@@ -228,80 +228,6 @@ class BookingServiceTest {
         when(prenotazioneDAO.isDisponibile(anyInt(), any(LocalDateTime.class))).thenThrow(new SQLException("Errore DB"));
 
         assertThrows(SQLException.class, () -> bookingService.createBooking(params));
-    }
-
-
-
-
-    // Test disabilitati non conformi al TCS
-
-    @Test @Disabled
-    @DisplayName("TC_1.6: timeslotIdStr null - checkAvailability")
-    void testCheckAvailability_TimeslotIdNull() throws SQLException {
-        Map<String, String> params = new HashMap<>();
-        params.put("date", LocalDate.now().toString()); // Solo "date" fornito
-
-        Map<String, Object> result = bookingService.checkAvailability(params);
-
-        assertTrue(result.containsKey("error"));
-        assertEquals("Parametri mancanti per checkAvailability", result.get("error"));
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_1.7: dateStr null - checkAvailability")
-    void testCheckAvailability_DateNull() throws SQLException {
-        Map<String, String> params = new HashMap<>();
-        params.put("timeslotId", "1"); // Solo "timeslotId" fornito
-
-        Map<String, Object> result = bookingService.checkAvailability(params);
-
-        assertTrue(result.containsKey("error"));
-        assertEquals("Parametri mancanti per checkAvailability", result.get("error"));
-    }
-
-
-    @Test @Disabled
-    @DisplayName("TC_2.6: timeslotIdStr null - createBooking")
-    void testCreateBooking_TimeslotIdNull() {
-        Map<String, String> params = new HashMap<>();
-        params.put("dataPrenotazione", LocalDate.now().toString());
-        params.put("idSessione", "1");
-        params.put("idUtente", "1");
-
-        assertThrows(IllegalArgumentException.class, () -> bookingService.createBooking(params));
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_2.7: dateStr null - createBooking")
-    void testCreateBooking_DateNull() {
-        Map<String, String> params = new HashMap<>();
-        params.put("timeslotId", "1");
-        params.put("idSessione", "1");
-        params.put("idUtente", "1");
-
-        assertThrows(IllegalArgumentException.class, () -> bookingService.createBooking(params));
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_2.8: sessioneIdStr null - createBooking")
-    void testCreateBooking_SessioneIdNull() {
-        Map<String, String> params = new HashMap<>();
-        params.put("timeslotId", "1");
-        params.put("dataPrenotazione", LocalDate.now().toString());
-        params.put("idUtente", "1");
-
-        assertThrows(IllegalArgumentException.class, () -> bookingService.createBooking(params));
-    }
-
-    @Test @Disabled
-    @DisplayName("TC_2.9: userIdStr null - createBooking")
-    void testCreateBooking_UserIdNull() {
-        Map<String, String> params = new HashMap<>();
-        params.put("timeslotId", "1");
-        params.put("dataPrenotazione", LocalDate.now().toString());
-        params.put("idSessione", "1");
-
-        assertThrows(IllegalArgumentException.class, () -> bookingService.createBooking(params));
     }
 
 }
