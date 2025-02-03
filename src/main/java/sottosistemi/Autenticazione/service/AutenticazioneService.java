@@ -31,12 +31,6 @@ public class AutenticazioneService {
             return false;
         }
 
-        // Verifica lunghezza e formato dell'email
-        String[] emailParts = email.split("@");
-        if (emailParts.length != 2 || emailParts[0].length() > 25) {
-            return false;
-        }
-
         // Verifica formato email con una regex
         if (!Pattern.matches("^[A-Za-z0-9+_.-]+@(.+)$", email)) {
             return false;

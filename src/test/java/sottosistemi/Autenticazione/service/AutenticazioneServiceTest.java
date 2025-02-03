@@ -34,7 +34,7 @@ class AutenticazioneServiceTest {
     @DisplayName("TC_1.1: Validazione - Email non valida")
     void testValidaInputRegistrazione_EmailNonValida() {
         boolean result = autenticazioneService.validaInputRegistrazione(
-                "invalid_email", "Mario", "Rossi", "hashedPassword123", "MENTOR");
+                null, "Mario", "Rossi", "hashedPassword123", "MENTOR");
         assertFalse(result);
     }
 
