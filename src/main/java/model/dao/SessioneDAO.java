@@ -12,8 +12,6 @@ public class SessioneDAO {
     private static final String INSERT_SESSIONE =
             "INSERT INTO Sessione (idUtente, titolo, descrizione, prezzo, immagine, statusSessione) "
                     + "VALUES (?,?,?,?,?,?)";
-    private static final String SELECT_THREE_RANDOM_SESSIONE =
-            "SELECT * FROM Sessione WHERE statusSessione != 'ARCHIVIATA' ORDER BY RAND() LIMIT 3";
 
     private static final String SELECT_SESSIONE_BY_ID =
             "SELECT * FROM Sessione WHERE idSessione = ?";
@@ -22,6 +20,8 @@ public class SessioneDAO {
             "UPDATE Sessione SET idUtente=?, titolo=?, descrizione=?, prezzo=?, immagine=?, statusSessione=? "
                     + "WHERE idSessione=?";
 
+    private static final String DELETE_SESSIONE =
+            "DELETE FROM Sessione WHERE idSessione=?";
 
     private static final String SELECT_ALL_SESSIONI =
             "SELECT s.* FROM Sessione s " +
@@ -58,9 +58,10 @@ public class SessioneDAO {
 
     public List<Sessione> getTreSessioniCasuali() {
         List<Sessione> sessioni = new ArrayList<>();
+        String query = "SELECT * FROM Sessione WHERE statusSessione != 'ARCHIVIATA' ORDER BY RAND() LIMIT 3";
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(SELECT_THREE_RANDOM_SESSIONE);
+             PreparedStatement ps = con.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -122,7 +123,6 @@ public class SessioneDAO {
     }
 
 
-
     // Trova tutte le sessioni
     public List<Sessione> doFindAll() throws SQLException {
         List<Sessione> sessioni = new ArrayList<>();
@@ -168,8 +168,6 @@ public class SessioneDAO {
         }
         return sessioni;
     }
-
-
 
     public List<Sessione> findByTitleLike(String titlePart) throws SQLException {
         List<Sessione> results = new ArrayList<>();
@@ -224,17 +222,5 @@ public class SessioneDAO {
                 throw new SQLException("Sessione non trovata");
             }
         }
-    }
-
-    private Sessione extract(ResultSet rs) throws SQLException {
-        Sessione sessione = new Sessione();
-        sessione.setIdSessione(rs.getInt("idSessione"));
-        sessione.setIdUtente(rs.getInt("idUtente"));
-        sessione.setTitolo(rs.getString("titolo"));
-        sessione.setDescrizione(rs.getString("descrizione"));
-        sessione.setPrezzo(rs.getDouble("prezzo"));
-        sessione.setImmagine(rs.getString("immagine"));
-        sessione.setStatusSessione(rs.getString("statusSessione"));
-        return sessione;
     }
 }

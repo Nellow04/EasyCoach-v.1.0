@@ -31,9 +31,6 @@ public class SessionRetrievalService {
         return sessioneDAO.doFindById(sessioneId);
     }
 
-    public List<Sessione> findAllSessions() throws SQLException {
-        return sessioneDAO.doFindAll();
-    }
 
     public List<Timeslot> findTimeslotsBySessionId(int sessioneId) throws SQLException {
         return timeslotDAO.findBySessionId(sessioneId);

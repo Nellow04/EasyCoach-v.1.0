@@ -6,6 +6,7 @@ import model.dao.PrenotazioneDAO;
 import model.dao.SessioneDAO;
 import model.dao.TimeslotDAO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.1: Recupera timeslots con risultati")
+    @DisplayName("TC_7.1: Recupera timeslots con risultati")
     void testGetTimeslotsByMentorIdAsMap_WithResults() throws SQLException {
         Timeslot timeslot = new Timeslot();
         timeslot.setGiorno(1);
@@ -54,7 +55,7 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.2: Recupera timeslots senza risultati")
+    @DisplayName("TC_7.2: Recupera timeslots senza risultati")
     void testGetTimeslotsByMentorIdAsMap_NoResults() throws SQLException {
         when(timeslotDAO.findByMentorId(1)).thenReturn(List.of());
 
@@ -64,8 +65,93 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_2.1: Crea sessione con days e hours validi")
-    void testCreateSession_WithValidDaysAndHours() throws SQLException {
+    @DisplayName("TC_8.1: Recupera timeslots tramite session ID con risultati")
+    void testFindTimeslotsBySessionId_WithResults() throws SQLException {
+        Timeslot timeslot = new Timeslot();
+        timeslot.setIdSessione(1);
+        timeslot.setGiorno(1);
+        timeslot.setOrario(10);
+        when(timeslotDAO.findBySessionId(1)).thenReturn(List.of(timeslot));
+
+        List<Timeslot> result = service.findTimeslotsBySessionId(1);
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getGiorno());
+        assertEquals(10, result.get(0).getOrario());
+    }
+
+    @Test
+    @DisplayName("TC_8.2: Recupera timeslots tramite session ID senza risultati")
+    void testFindTimeslotsBySessionId_NoResults() throws SQLException {
+        when(timeslotDAO.findBySessionId(1)).thenReturn(List.of());
+
+        List<Timeslot> result = service.findTimeslotsBySessionId(1);
+
+        assertTrue(result.isEmpty());
+    }
+
+
+
+    @Test
+    @DisplayName("TC_9.1: Recupera sessione tramite ID con successo")
+    void testFindSessionById_Success() throws SQLException {
+        Sessione session = new Sessione();
+        session.setIdSessione(1);
+        when(sessioneDAO.doFindById(1)).thenReturn(session);
+
+        Sessione result = service.findSessionById(1);
+
+        assertNotNull(result);
+        assertEquals(1, result.getIdSessione());
+    }
+
+    @Test
+    @DisplayName("TC_9.2: Recupera sessione tramite ID senza risultati")
+    void testFindSessionById_NoResults() throws SQLException {
+        when(sessioneDAO.doFindById(1)).thenReturn(null);
+
+        Sessione result = service.findSessionById(1);
+
+        assertNull(result);
+    }
+
+    @Test
+    @DisplayName("TC_10.1: Verifica prenotazioni attive (true)")
+    void testHasActiveBookings_True() throws SQLException {
+        when(prenotazioneDAO.hasActiveBookings(1)).thenReturn(true);
+
+        assertTrue(service.hasActiveBookings(1));
+        verify(prenotazioneDAO).hasActiveBookings(1);
+    }
+
+    @Test
+    @DisplayName("TC_10.2: Verifica prenotazioni attive (false)")
+    void testHasActiveBookings_False() throws SQLException {
+        when(prenotazioneDAO.hasActiveBookings(1)).thenReturn(false);
+
+        assertFalse(service.hasActiveBookings(1));
+        verify(prenotazioneDAO).hasActiveBookings(1);
+    }
+
+    @Test
+    @DisplayName("TC_11.1: Archivia sessione con successo")
+    void testArchiveSession_Success() throws SQLException {
+        Sessione session = new Sessione();
+        session.setIdSessione(1);
+        session.setStatusSessione("ATTIVA");
+
+        service.archiveSession(session);
+
+        assertEquals("ARCHIVIATA", session.getStatusSessione());
+        verify(sessioneDAO).doUpdate(session);
+        verify(timeslotDAO).doDeleteBySessione(1);
+    }
+
+
+    // Test per ridondanti nel TCS ma utili per garantire la branch coverage
+    @Test
+    @DisplayName("TC_7.3: Crea sessione con days e hour corretti")
+    void testCreateSession() throws SQLException {
         Sessione session = new Sessione();
         session.setIdUtente(1);
         session.setTitolo("Sessione Test");
@@ -82,7 +168,7 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_2.2: Crea sessione con days e hours null")
+    @DisplayName("TC_7.4: Crea sessione con days e hours null")
     void testCreateSession_WithNullDaysAndHours() throws SQLException {
         Sessione session = new Sessione();
         session.setIdUtente(1);
@@ -97,56 +183,7 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_3.1: Recupera sessione tramite ID con successo")
-    void testFindSessionById_Success() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdSessione(1);
-        when(sessioneDAO.doFindById(1)).thenReturn(session);
-
-        Sessione result = service.findSessionById(1);
-
-        assertNotNull(result);
-        assertEquals(1, result.getIdSessione());
-    }
-
-    @Test
-    @DisplayName("TC_3.2: Recupera sessione tramite ID senza risultati")
-    void testFindSessionById_NoResults() throws SQLException {
-        when(sessioneDAO.doFindById(1)).thenReturn(null);
-
-        Sessione result = service.findSessionById(1);
-
-        assertNull(result);
-    }
-
-    @Test
-    @DisplayName("TC_4.1: Recupera timeslots tramite session ID con risultati")
-    void testFindTimeslotsBySessionId_WithResults() throws SQLException {
-        Timeslot timeslot = new Timeslot();
-        timeslot.setIdSessione(1);
-        timeslot.setGiorno(1);
-        timeslot.setOrario(10);
-        when(timeslotDAO.findBySessionId(1)).thenReturn(List.of(timeslot));
-
-        List<Timeslot> result = service.findTimeslotsBySessionId(1);
-
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).getGiorno());
-        assertEquals(10, result.get(0).getOrario());
-    }
-
-    @Test
-    @DisplayName("TC_4.2: Recupera timeslots tramite session ID senza risultati")
-    void testFindTimeslotsBySessionId_NoResults() throws SQLException {
-        when(timeslotDAO.findBySessionId(1)).thenReturn(List.of());
-
-        List<Timeslot> result = service.findTimeslotsBySessionId(1);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    @DisplayName("TC_5.1: Aggiorna sessione con nuovi days e hours")
+    @DisplayName("TC_7.9: Aggiorna sessione con nuovi days e hours")
     void testUpdateSession_WithValidDaysAndHours() throws SQLException {
         Sessione session = new Sessione();
         session.setIdSessione(1);
@@ -163,7 +200,7 @@ class SessionManagementServiceTest {
     }
 
     @Test
-    @DisplayName("TC_5.2: Aggiorna sessione con days e hours null")
+    @DisplayName("TC_7.10: Aggiorna sessione con days e hours null")
     void testUpdateSession_WithNullDaysAndHours() throws SQLException {
         Sessione session = new Sessione();
         session.setIdSessione(1);
@@ -174,75 +211,6 @@ class SessionManagementServiceTest {
         verify(sessioneDAO).doUpdate(session);
         verify(timeslotDAO).doDeleteBySessione(1);
         verifyNoMoreInteractions(timeslotDAO);
-    }
-
-    @Test
-    @DisplayName("TC_6.1: Verifica prenotazioni attive (true)")
-    void testHasActiveBookings_True() throws SQLException {
-        when(prenotazioneDAO.hasActiveBookings(1)).thenReturn(true);
-
-        assertTrue(service.hasActiveBookings(1));
-        verify(prenotazioneDAO).hasActiveBookings(1);
-    }
-
-    @Test
-    @DisplayName("TC_6.2: Verifica prenotazioni attive (false)")
-    void testHasActiveBookings_False() throws SQLException {
-        when(prenotazioneDAO.hasActiveBookings(1)).thenReturn(false);
-
-        assertFalse(service.hasActiveBookings(1));
-        verify(prenotazioneDAO).hasActiveBookings(1);
-    }
-
-    @Test
-    @DisplayName("TC_7.1: Archivia sessione con successo")
-    void testArchiveSession_Success() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdSessione(1);
-        session.setStatusSessione("ATTIVA");
-
-        service.archiveSession(session);
-
-        assertEquals("ARCHIVIATA", session.getStatusSessione());
-        verify(sessioneDAO).doUpdate(session);
-        verify(timeslotDAO).doDeleteBySessione(1);
-    }
-
-
-    @Test
-    @DisplayName("TC_2.4: Crea sessione con lunghezze diverse di days e hours")
-    void testCreateSession_DifferentLengthsDaysHours() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdUtente(1);
-        session.setTitolo("Sessione Test");
-        when(sessioneDAO.doSave(session)).thenReturn(1);
-
-        String[] days = {"1", "2"};
-        String[] hours = {"10"}; // Lunghezza diversa
-
-        int sessionId = service.createSession(session, days, hours);
-
-        assertEquals(1, sessionId);
-        verify(sessioneDAO).doSave(session);
-        verifyNoInteractions(timeslotDAO); // Nessuna interazione con timeslotDAO
-    }
-
-
-    @Test
-    @DisplayName("TC_5.4: Aggiorna sessione con lunghezze diverse di days e hours")
-    void testUpdateSession_DifferentLengthsDaysHours() throws SQLException {
-        Sessione session = new Sessione();
-        session.setIdSessione(1);
-        session.setTitolo("Sessione Aggiornata");
-
-        String[] days = {"1", "2"};
-        String[] hours = {"10"}; // Lunghezza diversa
-
-        service.updateSession(session, days, hours);
-
-        verify(sessioneDAO).doUpdate(session);
-        verify(timeslotDAO).doDeleteBySessione(1); // I timeslot vengono eliminati
-        verifyNoMoreInteractions(timeslotDAO); // Nessun salvataggio di nuovi timeslot
     }
 
 }

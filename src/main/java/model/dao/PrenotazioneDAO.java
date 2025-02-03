@@ -25,24 +25,44 @@ public class PrenotazioneDAO {
             "UPDATE Prenotazione SET idUtente=?, idTimeslot=?, idSessione=?, dataPrenotazione=?, statusPrenotazione=?, linkVideoconferenza=? "
                     + "WHERE idPrenotazione=?";
 
+    private static final String DELETE_PRENOTAZIONE =
+            "DELETE FROM Prenotazione WHERE idPrenotazione=?";
+
+    private static final String SELECT_ALL_PRENOTAZIONI =
+            "SELECT * FROM Prenotazione";
 
     private static final String CHECK_DISPONIBILITA =
             "SELECT COUNT(*) FROM Prenotazione WHERE idTimeslot = ? AND dataPrenotazione = ? AND statusPrenotazione != 'ANNULLATA'";
 
+    private static final String CHECK_TIMESLOT_STATUS =
+            "SELECT statusPrenotazione FROM Prenotazione " +
+                    "WHERE idTimeslot = ? AND dataPrenotazione = ?";
 
-    private static final String UPDATE_EXPIRED_BOOKINGS = 
+    private static final String UPDATE_EXPIRED_BOOKINGS =
             "UPDATE Prenotazione SET statusPrenotazione = 'ANNULLATA' " +
-            "WHERE statusPrenotazione = 'IN_ATTESA' " +
-            "AND TIMESTAMPDIFF(MINUTE, timestampCreazione, NOW()) > 15 " +
-            "AND idPrenotazione NOT IN (SELECT idPrenotazione FROM Pagamento WHERE statusPagamento = 'IN_CORSO')";
+                    "WHERE statusPrenotazione = 'IN_ATTESA' " +
+                    "AND TIMESTAMPDIFF(MINUTE, timestampCreazione, NOW()) > 15 " +
+                    "AND idPrenotazione NOT IN (SELECT idPrenotazione FROM Pagamento WHERE statusPagamento = 'IN_CORSO')";
 
     private static final String UPDATE_COMPLETED_BOOKINGS =
             "UPDATE Prenotazione p " +
-            "JOIN Timeslot t ON p.idTimeslot = t.idTimeslot " +
-            "SET p.statusPrenotazione = 'CONCLUSA' " +
-            "WHERE p.statusPrenotazione = 'ATTIVA' " +
-            "AND (p.dataPrenotazione < ? " +
-            "     OR (p.dataPrenotazione = ? AND (t.orario + 1) <= ?))";
+                    "JOIN Timeslot t ON p.idTimeslot = t.idTimeslot " +
+                    "SET p.statusPrenotazione = 'CONCLUSA' " +
+                    "WHERE p.statusPrenotazione = 'ATTIVA' " +
+                    "AND (p.dataPrenotazione < ? " +
+                    "     OR (p.dataPrenotazione = ? AND (t.orario + 1) <= ?))";
+
+    private static final String SELECT_ACTIVE_PRENOTAZIONI_BY_MENTEE =
+            "SELECT p.* " +
+                    "FROM Prenotazione p " +
+                    "WHERE p.idUtente = ? AND p.statusPrenotazione = 'ATTIVA' " +
+                    "ORDER BY p.dataPrenotazione ASC";
+
+    private static final String SELECT_COMPLETED_PRENOTAZIONI_BY_MENTEE =
+            "SELECT p.* " +
+                    "FROM Prenotazione p " +
+                    "WHERE p.idUtente = ? AND p.statusPrenotazione = 'CONCLUSA' " +
+                    "ORDER BY p.dataPrenotazione DESC";
 
     private static final String SELECT_ACTIVE_PRENOTAZIONI_DETAILS_BY_MENTEE =
             "SELECT p.*, s.titolo, u.nome, u.cognome, t.orario " +
@@ -57,12 +77,12 @@ public class PrenotazioneDAO {
 
     private static final String SELECT_COMPLETED_PRENOTAZIONI_DETAILS_BY_MENTEE =
             "SELECT p.*, s.titolo, u.nome, u.cognome, t.orario " +
-            "FROM Prenotazione p " +
-            "JOIN Sessione s ON p.idSessione = s.idSessione " +
-            "JOIN Utente u ON s.idUtente = u.idUtente " +
-            "JOIN Timeslot t ON p.idTimeslot = t.idTimeslot " +
-            "WHERE p.idUtente = ? AND p.statusPrenotazione = 'CONCLUSA' " +
-            "ORDER BY p.dataPrenotazione DESC, t.orario DESC";
+                    "FROM Prenotazione p " +
+                    "JOIN Sessione s ON p.idSessione = s.idSessione " +
+                    "JOIN Utente u ON s.idUtente = u.idUtente " +
+                    "JOIN Timeslot t ON p.idTimeslot = t.idTimeslot " +
+                    "WHERE p.idUtente = ? AND p.statusPrenotazione = 'CONCLUSA' " +
+                    "ORDER BY p.dataPrenotazione DESC, t.orario DESC";
 
     private static final String SELECT_ACTIVE_PRENOTAZIONI_DETAILS_BY_MENTOR =
             "SELECT p.*, s.titolo, " +
@@ -81,13 +101,13 @@ public class PrenotazioneDAO {
 
     private static final String CHECK_ACTIVE_BOOKINGS_FOR_SESSION =
             "SELECT COUNT(*) FROM Prenotazione " +
-            "WHERE idSessione = ? AND statusPrenotazione = 'ATTIVA'";
+                    "WHERE idSessione = ? AND statusPrenotazione = 'ATTIVA'";
 
     private static final String CHECK_ACTIVE_BOOKINGS_FOR_USER =
             "SELECT COUNT(*) FROM Prenotazione p " +
-            "LEFT JOIN Sessione s ON p.idSessione = s.idSessione " +
-            "WHERE (p.idUtente = ? OR s.idUtente = ?) " + 
-            "AND p.statusPrenotazione = 'ATTIVA'";
+                    "LEFT JOIN Sessione s ON p.idSessione = s.idSessione " +
+                    "WHERE (p.idUtente = ? OR s.idUtente = ?) " +
+                    "AND p.statusPrenotazione = 'ATTIVA'";
 
     // Verifica disponibilità per una data specificaa
     public boolean isDisponibile(int idTimeslot, LocalDateTime dataOra) throws SQLException {
@@ -168,15 +188,36 @@ public class PrenotazioneDAO {
         }
     }
 
+    // Trova tutte le prenotazioni
+    public List<Prenotazione> doFindAll() throws SQLException {
+        List<Prenotazione> prenotazioni = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_PRENOTAZIONI);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Prenotazione p = new Prenotazione();
+                p.setIdPrenotazione(rs.getInt("idPrenotazione"));
+                p.setIdUtente(rs.getInt("idUtente"));
+                p.setIdTimeslot(rs.getInt("idTimeslot"));
+                p.setIdSessione(rs.getInt("idSessione"));
+                p.setDataPrenotazione(rs.getTimestamp("dataPrenotazione").toLocalDateTime());
+                p.setStatusPrenotazione(rs.getString("statusPrenotazione"));
+                prenotazioni.add(p);
+            }
+        }
+        return prenotazioni;
+    }
+
     public Map<String, Object> checkTimeslotStatus(int idTimeslot, LocalDateTime dataOra) throws SQLException {
         Map<String, Object> result = new HashMap<>();
-        
+
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(
-                "SELECT statusPrenotazione FROM Prenotazione " +
-                "WHERE idTimeslot = ? AND dataPrenotazione = ? " +
-                "ORDER BY FIELD(statusPrenotazione, 'ATTIVA', 'CONCLUSA', 'IN_ATTESA', 'ANNULLATA') " +
-                "LIMIT 1")) {
+                     "SELECT statusPrenotazione FROM Prenotazione " +
+                             "WHERE idTimeslot = ? AND dataPrenotazione = ? " +
+                             "ORDER BY FIELD(statusPrenotazione, 'ATTIVA', 'CONCLUSA', 'IN_ATTESA', 'ANNULLATA') " +
+                             "LIMIT 1")) {
 
             ps.setInt(1, idTimeslot);
             ps.setTimestamp(2, Timestamp.valueOf(dataOra));
@@ -201,7 +242,7 @@ public class PrenotazioneDAO {
             try (PreparedStatement ps = con.prepareStatement(UPDATE_EXPIRED_BOOKINGS)) {
                 int updatedExpired = ps.executeUpdate();
                 Logger.getLogger(PrenotazioneDAO.class.getName())
-                      .info("Aggiornate " + updatedExpired + " prenotazioni scadute");
+                        .info("Aggiornate " + updatedExpired + " prenotazioni scadute");
             }
 
             // Poi aggiorna le prenotazioni concluse (lezione terminata)
@@ -210,10 +251,10 @@ public class PrenotazioneDAO {
                 ps.setDate(1, Date.valueOf(now.toLocalDate()));
                 ps.setDate(2, Date.valueOf(now.toLocalDate()));
                 ps.setInt(3, now.getHour());
-                
+
                 int updatedCompleted = ps.executeUpdate();
                 Logger.getLogger(PrenotazioneDAO.class.getName())
-                      .info("Aggiornate " + updatedCompleted + " prenotazioni concluse");
+                        .info("Aggiornate " + updatedCompleted + " prenotazioni concluse");
             }
         }
     }
@@ -239,7 +280,7 @@ public class PrenotazioneDAO {
                     p.setLinkVideoconferenza(rs.getString("linkVideoconferenza"));
                     p.setDataPrenotazione(rs.getTimestamp("dataPrenotazione").toLocalDateTime());
                     p.setStatusPrenotazione(rs.getString("statusPrenotazione"));
-                    
+
                     prenotazioni.add(p);
                 }
             }
@@ -264,7 +305,7 @@ public class PrenotazioneDAO {
                     p.setLinkVideoconferenza(rs.getString("linkVideoconferenza"));
                     p.setDataPrenotazione(rs.getTimestamp("dataPrenotazione").toLocalDateTime());
                     p.setStatusPrenotazione(rs.getString("statusPrenotazione"));
-                    
+
                     prenotazioni.add(p);
                 }
             }
@@ -319,10 +360,10 @@ public class PrenotazioneDAO {
     public boolean hasActiveBookingsForUser(int idUtente) throws SQLException {
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(CHECK_ACTIVE_BOOKINGS_FOR_USER)) {
-            
+
             ps.setInt(1, idUtente); // Per prenotazioni come mentee
             ps.setInt(2, idUtente); // Per prenotazioni come mentor
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;

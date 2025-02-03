@@ -3,10 +3,7 @@ package model.dao;
 import model.beans.Timeslot;
 import model.connection.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +14,15 @@ public class TimeslotDAO {
 
     private static final String SELECT_TIMESLOT_BY_ID =
             "SELECT * FROM Timeslot WHERE idTimeslot = ?";
+
+    private static final String UPDATE_TIMESLOT =
+            "UPDATE Timeslot SET idSessione=?, giorno=?, orario=? WHERE idTimeslot=?";
+
+    private static final String DELETE_TIMESLOT =
+            "DELETE FROM Timeslot WHERE idTimeslot=?";
+
+    private static final String SELECT_ALL_TIMESLOT =
+            "SELECT * FROM Timeslot";
 
     private static final String SELECT_TIMESLOT_BY_MENTOR =
             "SELECT t.* " +
@@ -63,11 +69,39 @@ public class TimeslotDAO {
         return timeslot;
     }
 
+    // Aggiorna un timeslot esistente
+    public void doUpdate(Timeslot timeslot) throws SQLException {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(UPDATE_TIMESLOT)) {
+
+            ps.setInt(1, timeslot.getIdSessione());
+            ps.setInt(2, timeslot.getGiorno());
+            ps.setInt(3, timeslot.getOrario());
+            ps.setInt(4, timeslot.getIdTimeslot());
+
+            ps.executeUpdate();
+        }
+    }
 
 
+    // Trova tutti i timeslot
+    public List<Timeslot> doFindAll() throws SQLException {
+        List<Timeslot> timeslots = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(SELECT_ALL_TIMESLOT);
+             ResultSet rs = ps.executeQuery()) {
 
-
-
+            while (rs.next()) {
+                Timeslot t = new Timeslot();
+                t.setIdTimeslot(rs.getInt("idTimeslot"));
+                t.setIdSessione(rs.getInt("idSessione"));
+                t.setGiorno(rs.getInt("giorno"));
+                t.setOrario(rs.getInt("orario"));
+                timeslots.add(t);
+            }
+        }
+        return timeslots;
+    }
 
     // Trova tutti i timeslot occupati di un mentor
     public List<Timeslot> findByMentorId(int mentorId) throws SQLException {

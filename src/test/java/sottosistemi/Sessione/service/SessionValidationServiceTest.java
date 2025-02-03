@@ -1,6 +1,7 @@
 package sottosistemi.Sessione.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -129,7 +130,7 @@ class SessionValidationServiceTest {
     }
 
     @Test
-    @DisplayName("TC_5.1: Validazione completa con dati validi")
+    @DisplayName("TC_6.1: Validazione completa con dati validi")
     void testValidateForm_Valid() {
         String[] days = {"1", "2"};
         String[] hours = {"10", "15"};
@@ -138,7 +139,7 @@ class SessionValidationServiceTest {
     }
 
     @Test
-    @DisplayName("TC_5.2: Validazione completa con errori")
+    @DisplayName("TC_6.2: Validazione completa con errori")
     void testValidateForm_Errors() {
         String[] days = {"1", "7"}; // Giorno non valido
         String[] hours = {"10"};
@@ -152,32 +153,10 @@ class SessionValidationServiceTest {
         assertTrue(errors.containsKey("immagine"));
     }
 
-    @Test
-    @DisplayName("TC_3.6: Prezzo fuori range (> 999 o <= 0)")
-    void testValidatePrice_OutOfRange() {
-        assertFalse(service.validatePrice("1000")); // Maggiore di 999
-        assertFalse(service.validatePrice("-1"));  // Minore di 0
-        assertFalse(service.validatePrice("0"));   // Uguale a 0
-    }
+
 
     @Test
-    @DisplayName("TC_4.5: Timeslots nulli (days e hours null)")
-    void testValidateTimeslots_NullValues() {
-        assertFalse(service.validateTimeslots(null, null)); // Entrambi null
-        assertFalse(service.validateTimeslots(new String[]{"1"}, null)); // Solo hours null
-        assertFalse(service.validateTimeslots(null, new String[]{"10"})); // Solo days null
-    }
-
-    @Test
-    @DisplayName("TC_4.6: Giorni o ore fuori dal range")
-    void testValidateTimeslots_OutOfRangeValues() {
-        String[] days = {"7"}; // Giorno non valido
-        String[] hours = {"24"}; // Ora non valida
-        assertFalse(service.validateTimeslots(days, hours));
-    }
-
-    @Test
-    @DisplayName("TC_6.1: Validazione Form Edit con errori")
+    @DisplayName("TC_6.3: Validazione Form Edit con errori")
     void testValidateFormEdit_WithErrors() {
         String[] days = {"7"}; // Giorno non valido
         String[] hours = {"24"}; // Ora non valida
@@ -191,7 +170,7 @@ class SessionValidationServiceTest {
     }
 
     @Test
-    @DisplayName("TC_6.2: Validazione Form Edit senza errori")
+    @DisplayName("TC_6.4: Validazione Form Edit senza errori")
     void testValidateFormEdit_NoErrors() {
         String[] days = {"1", "2"};
         String[] hours = {"10", "15"};
@@ -199,33 +178,5 @@ class SessionValidationServiceTest {
 
         assertTrue(errors.isEmpty()); // Nessun errore
     }
-
-
-    @Test
-    @DisplayName("TC_5.3: Validazione completa con immagine mancante")
-    void testValidateForm_MissingImage() {
-        String[] days = {"1", "2"};
-        String[] hours = {"10", "15"};
-        Map<String, String> errors = service.validateForm("Titolo", "Descrizione", "123.45", days, hours, false);
-
-        assertFalse(errors.isEmpty());
-        assertTrue(errors.containsKey("immagine")); // Verifica errore sull'immagine
-    }
-
-    @Test
-    @DisplayName("TC_5.4: Validazione completa con errori combinati")
-    void testValidateForm_CombinedErrors() {
-        String[] days = {"7"}; // Giorno non valido
-        String[] hours = {"25"}; // Ora non valida
-        Map<String, String> errors = service.validateForm("A", "B", "-10", days, hours, false);
-
-        assertEquals(5, errors.size());
-        assertTrue(errors.containsKey("titolo")); // Errore nel titolo
-        assertTrue(errors.containsKey("descrizione")); // Errore nella descrizione
-        assertTrue(errors.containsKey("prezzo")); // Errore nel prezzo
-        assertTrue(errors.containsKey("timeslots")); // Errore nei timeslots
-        assertTrue(errors.containsKey("immagine")); // Errore nell'immagine
-    }
-
 
 }

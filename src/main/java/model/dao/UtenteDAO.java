@@ -3,10 +3,7 @@ package model.dao;
 import model.beans.Utente;
 import model.connection.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +15,8 @@ public class UtenteDAO {
     private static final String SELECT_UTENTE_BY_ID =
             "SELECT * FROM Utente WHERE idUtente = ? AND isDeleted = FALSE";
 
+    private static final String UPDATE_UTENTE =
+            "UPDATE Utente SET email=?, nome=?, cognome=?, password=?, ruolo=? WHERE idUtente=? AND isDeleted = FALSE";
 
     private static final String DELETE_UTENTE =
             "UPDATE Utente SET isDeleted = TRUE WHERE idUtente=?";
@@ -31,6 +30,12 @@ public class UtenteDAO {
     private static final String UPDATE_UTENTE_PASSWORD =
             "UPDATE Utente SET password = ? WHERE idUtente = ? AND isDeleted = FALSE";
 
+    private static final String SELECT_TOP_MENTORS =
+            "SELECT u.*, (SELECT COUNT(*) FROM Sessione s WHERE s.idMentor = u.idUtente) as sessioni_count " +
+                    "FROM Utente u " +
+                    "WHERE u.ruolo = 'mentor' AND u.isDeleted = FALSE " +
+                    "ORDER BY sessioni_count DESC " +
+                    "LIMIT 3";
 
     private static final String SELECT_ALL_MENTORS =
             "SELECT * FROM Utente WHERE ruolo = 'mentor' AND isDeleted = FALSE";
@@ -71,7 +76,21 @@ public class UtenteDAO {
         return utente;
     }
 
+    // Aggiorna un utente esistente
+    public void doUpdate(Utente utente) throws SQLException {
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(UPDATE_UTENTE)) {
 
+            ps.setString(1, utente.getEmail());
+            ps.setString(2, utente.getNome());
+            ps.setString(3, utente.getCognome());
+            ps.setString(4, utente.getPassword());
+            ps.setString(5, utente.getRuolo());
+            ps.setInt(6, utente.getIdUtente());
+
+            ps.executeUpdate();
+        }
+    }
 
     // Aggiorna password dell'utente
     public void doUpdatePassword(Utente utente) throws SQLException {

@@ -109,7 +109,7 @@ public class BookingService {
             return null;
         }
 
-        prenotazione.setStatusPrenotazione("CONCLUSA");
+        prenotazione.setStatusPrenotazione("ATTIVA");
         prenotazioneDAO.doUpdate(prenotazione);
         return prenotazione;
     }

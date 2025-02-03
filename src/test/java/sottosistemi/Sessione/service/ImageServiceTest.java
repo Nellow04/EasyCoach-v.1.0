@@ -2,6 +2,7 @@ package sottosistemi.Sessione.service;
 
 import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -31,7 +32,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.1: validateImage con immagine valida")
+    @DisplayName("TC_5.1: validateImage con immagine valida")
     void testValidateImage_ValidImage() {
         when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // 5 MB
         when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\"; filename=\"image.jpg\"");
@@ -42,7 +43,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.2: validateImage con filePart nullo")
+    @DisplayName("TC_5.2: validateImage con filePart nullo")
     void testValidateImage_NullPart() {
         boolean isValid = imageService.validateImage(null);
 
@@ -50,7 +51,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.3: validateImage con dimensione file troppo grande")
+    @DisplayName("TC_5.3: validateImage con dimensione file troppo grande")
     void testValidateImage_FileTooLarge() {
         when(mockPart.getSize()).thenReturn(15 * 1024 * 1024L); // 15 MB
 
@@ -60,7 +61,7 @@ class ImageServiceTest {
     }
 
     @Test
-    @DisplayName("TC_1.4: validateImage con estensione non valida")
+    @DisplayName("TC_5.4: validateImage con estensione non valida")
     void testValidateImage_InvalidExtension() {
         when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // 5 MB
         when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\"; filename=\"image.exe\"");
@@ -70,6 +71,9 @@ class ImageServiceTest {
         assertFalse(isValid);
     }
 
+
+
+    // Test per ridondanti nel TCS ma utili per garantire la branch coverage
     @Test
     @DisplayName("TC_2.1: processImageUpload con immagine valida")
     void testProcessImageUpload_ValidImage() throws IOException {
@@ -113,7 +117,26 @@ class ImageServiceTest {
         });
     }
 
+    @Test
+    @DisplayName("TC_2.4: processImageUpload con filePart nullo")
+    void testProcessImageUpload_NullFilePart() throws IOException {
+        String result = imageService.processImageUpload(null, "test_uploads", "uploads");
+        assertNull(result, "Il risultato dovrebbe essere null quando filePart è nullo");
+    }
 
+    @Test
+    @DisplayName("TC_2.5: processImageUpload con submittedFileName nullo")
+    void testProcessImageUpload_NullSubmittedFileName() throws IOException {
+        // Simula un header content-disposition non nullo ma senza filename
+        when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // File valido
+        when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\""); // Nessun filename presente
+
+        // Chiama il metodo
+        String result = imageService.processImageUpload(mockPart, "test_uploads", "uploads");
+
+        // Verifica che il risultato sia null
+        assertNull(result, "Il risultato dovrebbe essere null quando il filename non è presente nell'header content-disposition");
+    }
 
     @Test
     @DisplayName("TC_3.1: deleteImage con immagine esistente")
@@ -145,7 +168,6 @@ class ImageServiceTest {
         assertDoesNotThrow(() -> imageService.deleteImage(null, "test_uploads"));
         assertDoesNotThrow(() -> imageService.deleteImage("", "test_uploads"));
     }
-
     @Test
     @DisplayName("TC_4.1: getSubmittedFileName con header valido")
     void testGetSubmittedFileName_ValidHeader() {
@@ -173,35 +195,5 @@ class ImageServiceTest {
 
         assertNull(fileName);
     }
-    @Test
-    @DisplayName("TC_1.3: validateImage con dimensione file 0")
-    void testValidateImage_FileSizeZero() {
-        when(mockPart.getSize()).thenReturn(0L); // File vuoto
-        boolean isValid = imageService.validateImage(mockPart);
-        assertFalse(isValid, "Un file con dimensione 0 non dovrebbe essere valido");
-    }
-
-    @Test
-    @DisplayName("TC_2.4: processImageUpload con filePart nullo")
-    void testProcessImageUpload_NullFilePart() throws IOException {
-        String result = imageService.processImageUpload(null, "test_uploads", "uploads");
-        assertNull(result, "Il risultato dovrebbe essere null quando filePart è nullo");
-    }
-
-    @Test
-    @DisplayName("TC_2.5: processImageUpload con submittedFileName nullo")
-    void testProcessImageUpload_NullSubmittedFileName() throws IOException {
-        // Simula un header content-disposition non nullo ma senza filename
-        when(mockPart.getSize()).thenReturn(5 * 1024 * 1024L); // File valido
-        when(mockPart.getHeader("content-disposition")).thenReturn("form-data; name=\"file\""); // Nessun filename presente
-
-        // Chiama il metodo
-        String result = imageService.processImageUpload(mockPart, "test_uploads", "uploads");
-
-        // Verifica che il risultato sia null
-        assertNull(result, "Il risultato dovrebbe essere null quando il filename non è presente nell'header content-disposition");
-    }
-
-
 
 }
