@@ -58,7 +58,7 @@
             </div>
             <button type="submit" class="login-button">Registrati</button>
             <div class="login-footer">
-                <p>Hai già un account? <a href="${pageContext.request.contextPath}/login.jsp" class="register-link">Accedi</a></p>
+                <p>Hai gia' un account? <a href="${pageContext.request.contextPath}/login.jsp" class="register-link">Accedi</a></p>
             </div>
         </form>
     </div>
